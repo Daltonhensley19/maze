@@ -21,9 +21,13 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    #[command(about = "Run the project")]
     Run,
+    #[command(about = "Clean the project")]
     Clean,
+    #[command(about = "Build the project")]
     Build,
+    #[command(about = "Generate a new project")]
     New { project_name: PathBuf },
 }
 
