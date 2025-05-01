@@ -254,8 +254,8 @@ fn build_project() -> Result<(), MazeError> {
         .wait_with_output()
         .expect("Could not wait for make command");
 
-    println!("{}", String::from_utf8_lossy(&make_ret.stdout));
-    println!("{}", String::from_utf8_lossy(&make_ret.stderr));
+    print!("{}", String::from_utf8_lossy(&make_ret.stdout));
+    print!("{}", String::from_utf8_lossy(&make_ret.stderr));
 
     // Change back to original directory
     std::env::set_current_dir("..").expect("Could not change directory");
@@ -279,8 +279,8 @@ fn run_project() -> Result<(), MazeError> {
         .wait_with_output()
         .expect("Could not run project");
 
-    println!("{}", String::from_utf8_lossy(&ret.stdout));
-    println!("{}", String::from_utf8_lossy(&ret.stderr));
+    print!("{}", String::from_utf8_lossy(&ret.stdout));
+    print!("{}", String::from_utf8_lossy(&ret.stderr));
 
     // Change back to original directory
     std::env::set_current_dir("..").expect("Could not change directory");
