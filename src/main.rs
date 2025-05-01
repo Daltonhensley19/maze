@@ -291,10 +291,11 @@ fn run_project() -> Result<(), MazeError> {
 fn clean_project() -> std::io::Result<()> {
     // If build directory exists, remove it
     if std::fs::exists("build")? {
-        std::fs::remove_dir("build")?;
+        std::fs::remove_dir_all("build")?;
+        println!("Cleaned project (`build/` removed)");
+    } else {
+        println!("Project already cleaned");
     }
-
-    println!("Cleaned project (`build/` removed)");
 
     Ok(())
 }
