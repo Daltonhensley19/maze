@@ -2,7 +2,129 @@ use std::path::{Path, PathBuf};
 
 use crate::error::MazeError;
 
-struct Foo {}
+pub fn generate_class<P: AsRef<str>>(class_name: P) -> Result<(), MazeError> {
+    // Generate the include file for this class
+    generate_class_header(class_name.as_ref())?;
+
+    // Generate the implementation file for this class
+    generate_class_implementation(class_name.as_ref())?;
+
+    Ok(())
+}
+
+fn generate_class_implementation(class_name: &str) -> Result<(), MazeError> {
+    // Paths should be lowercase
+    let class_name_impl_name = class_name.to_lowercase();
+
+    let class_name_path = PathBuf::from("src").join(format!("{class_name_impl_name}.cpp"));
+
+    // Make sure that we do not create a class if it already exists
+    if std::fs::exists(&class_name_path).expect("Could not check if file exists") {
+        return Err(MazeError::ClassExists(String::from(class_name)));
+    }
+
+    // Otherwise, create the file
+    std::fs::File::create(&class_name_path).expect("Could not create class header file");
+
+    // And write the stub into it
+    let source_stub = format!(
+        r#"// {0}.cpp
+#include "{0}.h"
+
+// Constructor
+{0}::{0}()  {{
+    // Implementation
+}}
+
+// Destructor
+{0}::~{0}() {{
+    // Cleanup
+}}
+
+// Copy constructor
+{0}::{0}(const {0}& other)  {{
+    // Copy implementation
+}}
+
+// Move constructor
+{0}::{0}({0}&& other) noexcept  {{
+    // Move implementation
+}}
+
+// Copy assignment operator
+{0}& {0}::operator=(const {0}& other) {{
+// Swap members here 
+    if (this != &other) {{
+    }}
+    return *this;
+}}
+
+// Move assignment operator
+{0}& {0}::operator=({0}&& other) noexcept {{
+// Move members here
+    if (this != &other) {{
+    }}
+    return *this;
+}}
+
+"#,
+        class_name
+    );
+
+    std::fs::write(&class_name_path, source_stub).expect("Unable to write into class source file");
+
+    Ok(())
+}
+
+fn generate_class_header(class_name: &str) -> Result<(), MazeError> {
+    // Paths should be lowercase
+    let class_header_name = class_name.to_lowercase();
+
+    let class_name_path = PathBuf::from("include").join(format!("{class_header_name}.h"));
+
+    // Make sure that we do not create a class if it already exists
+    if std::fs::exists(&class_name_path).expect("Could not check if file exists") {
+        return Err(MazeError::ClassExists(String::from(class_name)));
+    }
+
+    // Otherwise, create the file
+    std::fs::File::create(&class_name_path).expect("Could not create class header file");
+
+    // And write the stub into it
+    let header_stub = format!(
+        r#"// {0}.h
+#pragma once
+
+class {0} {{
+public:
+    // Constructor
+    {0}();
+    
+    // Destructor
+    ~{0}();
+    
+    // Copy constructor
+    {0}(const {0}& other);
+    
+    // Move constructor
+    {0}({0}&& other) noexcept;
+    
+    // Copy assignment operator
+    {0}& operator=(const {0}& other);
+    
+    // Move assignment operator
+    {0}& operator=({0}&& other) noexcept;
+    
+private:
+}};
+"#,
+        class_name
+    );
+
+    std::fs::write(&class_name_path, header_stub).expect("Unable to write into class header file");
+
+    Ok(())
+}
 
 pub fn generate_main_cpp_file<P: AsRef<Path>>(project_name: P) {
     let main_cpp_path = project_name.as_ref().join("src/main.cpp");

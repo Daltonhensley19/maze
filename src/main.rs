@@ -11,7 +11,7 @@ use std::{path::PathBuf, process::Command};
 
 use clap::{Parser, Subcommand};
 use error::MazeError;
-use generate::generate_maze_project;
+use generate::{generate_class, generate_maze_project};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -30,6 +30,8 @@ enum Commands {
     Build,
     #[command(about = "Generate a new project")]
     New { project_name: PathBuf },
+    #[command(about = "Generate a new class")]
+    CreateClass { class_name: String },
 }
 
 fn build_project() -> Result<(), MazeError> {
@@ -116,6 +118,10 @@ fn main() -> anyhow::Result<()> {
         Commands::Run => run_project()?,
         Commands::Build => build_project()?,
         Commands::Clean => clean_project()?,
+        Commands::CreateClass { class_name } => {
+            println!("Creating new class `{:?}`", class_name);
+            generate_class(class_name)?;
+        }
         Commands::New { project_name } => {
             println!("Creating new project `{:?}`", project_name);
             generate_maze_project(project_name)?;
