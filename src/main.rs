@@ -38,9 +38,6 @@ enum MazeError {
 
     #[error("The CMakeLists.txt file does not exist in the project directory")]
     CMakeFileNotFound,
-
-    #[error("CMake failed to build project")]
-    CMakeBuildFailure,
 }
 
 fn generate_main_cpp_file<P: AsRef<Path>>(project_name: P) {
