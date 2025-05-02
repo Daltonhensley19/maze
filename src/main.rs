@@ -43,7 +43,10 @@ enum MazeError {
     CMakeBuildFailure,
 }
 
-fn write_into_main_cpp_file<P: AsRef<Path>>(project_name: P) {
+fn generate_main_cpp_file<P: AsRef<Path>>(project_name: P) {
+    let main_cpp_path = project_name.as_ref().join("src/main.cpp");
+    std::fs::File::create(&main_cpp_path).expect("Could not create main.cpp file");
+
     let main_cpp: &'static str = r#"#include <iostream>
 
 int main() {
@@ -51,11 +54,14 @@ int main() {
     return 0;
 }
 "#;
-    let main_cpp_path = project_name.as_ref().join("src/main.cpp");
     std::fs::write(main_cpp_path, main_cpp).expect("Unable to write into main.cpp file");
 }
 
-fn write_into_cmake_lists<P: AsRef<Path>>(project_name: P) {
+fn generate_cmake_lists<P: AsRef<Path>>(project_name: P) {
+    let project_name = project_name.as_ref();
+    let cmake_lists_path = project_name.join("CMakeLists.txt");
+    std::fs::File::create(&cmake_lists_path).expect("Could not create CMakeLists.txt file");
+
     let cmake_lists: &'static str = r#"cmake_minimum_required(VERSION 3.10)
 project(MyProject)
 
@@ -86,12 +92,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 "#;
 
-    let cmake_lists_path = project_name.as_ref().join("CMakeLists.txt");
     std::fs::write(cmake_lists_path, cmake_lists)
         .expect("Unable to write into CMakeLists.txt file");
 }
 
-fn write_into_gitignore<P: AsRef<Path>>(project_name: P) {
+fn generate_gitignore<P: AsRef<Path>>(project_name: P) {
+    let gitignore_path = project_name.as_ref().join(".gitignore");
+    std::fs::File::create(&gitignore_path).expect("Could not create .gitignore file");
+
     let gitignore: &'static str = r#"# Compiled Object files
 *.o
 *.ko
@@ -184,7 +192,6 @@ cmake-build-*/
 *.swo
 "#;
 
-    let gitignore_path = project_name.as_ref().join(".gitignore");
     std::fs::write(gitignore_path, gitignore).expect("Unable to write into .gitignore file");
 }
 
@@ -204,24 +211,14 @@ fn generate_maze_project<P: AsRef<Path>>(project_name: P) -> Result<(), MazeErro
     // Generate project include directory
     std::fs::create_dir(project_name.join("include/")).expect("Could not create include directory");
 
-    // Generate project src main.cpp file
-    std::fs::File::create(project_name.join("src/main.cpp"))
-        .expect("Could not create main.cpp file");
+    // Generate project main.cpp and populate with minimal stub
+    generate_main_cpp_file(project_name);
 
-    // Write minimal main.cpp file
-    write_into_main_cpp_file(project_name);
+    // Generate project CMakeLists.txt and populate with minimal stub
+    generate_cmake_lists(project_name);
 
-    // Generate project CMakeLists.txt file
-    std::fs::File::create(project_name.join("CMakeLists.txt"))
-        .expect("Could not create CMakeLists.txt file");
-
-    // Write minimal CMakeLists.txt file
-    write_into_cmake_lists(project_name);
-
-    // Generate project .gitignore file
-    std::fs::File::create(project_name.join(".gitignore"))
-        .expect("Could not create .gitignore file");
-    write_into_gitignore(project_name);
+    // Generate project .gitignore and populate with minimal stub
+    generate_gitignore(project_name);
 
     Ok(())
 }
