@@ -9,4 +9,6 @@ pub enum MazeError {
 
     #[error("The CMakeLists.txt file does not exist in the project directory")]
     CMakeFileNotFound,
+    #[error("The class `{0}` already exists in the project")]
+    ClassExists(String),
 }
